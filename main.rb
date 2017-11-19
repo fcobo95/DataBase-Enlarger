@@ -1,7 +1,5 @@
-require_relative 'data_base_connection'
+require_relative 'disk_checker'
 class Main
-  database = DataBaseConnection.new('192.168.1.21', 'postgres', 'sysadmin', 'admin')
-
-  database.connectToPG
-  database.insert
+  theDisk = DiskChecker.new
+  theDisk.checkDisk
 end
