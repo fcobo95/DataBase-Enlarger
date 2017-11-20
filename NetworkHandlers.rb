@@ -1,7 +1,13 @@
 require 'net/ssh'
 require 'net/scp'
 require 'net/sftp'
+require_relative 'DatabaseConnection'
 class NetworkHandlers
+  dbhost = '192.168.1.5'
+  dbuser = 'sysadmin'
+  dbname = 'postgres'
+  dbpass = 'admin'
+  $connection = DatabaseConnection.new(dbhost, dbname, dbuser, dbpass)
 
   def initialize(host, user, password)
     @host = host
@@ -30,6 +36,7 @@ class NetworkHandlers
         space = used_space.to_i
         if space == 50
           ssh.exec!('pg_dump postgres > postgres_dump.sql')
+          $connection.truncate_logger
           scp_host
           sftp_to_vm
         end # IF ENDS
@@ -41,7 +48,7 @@ class NetworkHandlers
 
   def sftp_to_vm
     Net::SFTP.start(@host, @user, :password => @password) do |sftp|
-      sftp.remove('/home/erick/postgres_dump.sql')
+      sftp.remove("/home/erick/postgres_dump.sql")
     end # DO ENDS
   end #DEF ENDS
 end #CLASS ENDS
