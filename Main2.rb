@@ -4,6 +4,8 @@ class Main
   user = 'erick'
   password = 'root'
 
+  # HANDLERS IS THE NEW NETWORKHANDLERS OBJECT USED TO ACCESS DAEMON FUNCTIONALITY TO MONITOR DISK SPACE
+  # AND TO ACT WHEN THE DB IS GROWING FRANTICALLY.
   handlers = NetworkHandlers.new(host, user, password)
   handlers.ssh_vm
 end

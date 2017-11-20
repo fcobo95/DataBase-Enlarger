@@ -1,13 +1,14 @@
 require_relative 'DatabaseConnection'
-$shared_conn
 class Main
   dbhost = '192.168.1.5'
   dbuser = 'sysadmin'
   dbname = 'postgres'
   dbpass = 'admin'
 
-  $shared_conn = DatabaseConnection.new(dbhost, dbname, dbuser, dbpass)
+  # NEW POSTGRES DATABASE OBJECT
+  database = DatabaseConnection.new(dbhost, dbname, dbuser, dbpass)
 
-  $shared_conn.connectToPG
-  $shared_conn.insert_to_vm_db
+  # ROUTINES TO COMPLETE. THIS CONNECTS TO THE DB AND INSERTS A LOT OF VALUES INTO THE LOGGER TABLE.
+  database.connect_to_pg
+  database.insert_to_vm_db
 end
