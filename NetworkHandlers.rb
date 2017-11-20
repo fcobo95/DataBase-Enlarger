@@ -2,6 +2,7 @@ require 'net/ssh'
 require 'net/scp'
 require 'net/sftp'
 require_relative 'DatabaseConnection'
+$connection
 class NetworkHandlers
   dbhost = '192.168.1.5'
   dbuser = 'sysadmin'
@@ -19,7 +20,7 @@ class NetworkHandlers
 
   def scp_host
     Net::SCP.start(@host, @user, :password => @password) do |scp|
-      scp.download "/home/erick/postgres_dump.sql", "/home/ecobo95/PostgresDumps"
+      scp.download "/home/erick/postgres_dump.sql", "/home/ecobo95/PostgresDumps/"
     end #DO ENDS
   end
 
@@ -34,9 +35,9 @@ class NetworkHandlers
         used_space = temp.gsub("%", "")
         puts "Used disk space is: #{used_space}"
         space = used_space.to_i
-        if space == 50
+        if space == 41
           ssh.exec!('pg_dump postgres > postgres_dump.sql')
-          $connection.truncate_logger
+          $connection.exec("TRUNCATE TABLE logger CASCADE")
           scp_host
           sftp_to_vm
         end # IF ENDS

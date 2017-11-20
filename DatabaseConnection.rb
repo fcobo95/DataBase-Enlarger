@@ -33,8 +33,8 @@ class DatabaseConnection
     end
   end
 
-  def truncate_logger
-    $connection.exec("TRUNCATE TABLE logger CASCADE")
-  end
+    # def truncate_logger
+    #   $connection.exec("TRUNCATE TABLE logger CASCADE")
+    # end
 end
 
