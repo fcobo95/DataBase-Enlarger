@@ -3,16 +3,16 @@ require 'pg'
 require 'socket'
 class DatabaseConnection
 
-  def initialize(host, dbname, user, password)
+  def initialize(host, database, user, password)
     @host = host
-    @dbname = dbname
+    @database = database
     @user = user
     @password = password
 
   end
 
   def connectToPG
-    $connection = PG::Connection.open(:host => @host, :dbname => @dbname,
+    $connection = PG::Connection.open(:host => @host, :dbname => @database,
                                       :user => @user, :password => @password)
   rescue PG::Error => error
     puts error.message
@@ -27,7 +27,6 @@ class DatabaseConnection
     while true
       message = "Logged the user: #{user} on IP #{ip} that is inserting values in the logger table. This is junk text: #{ifconfig}"
       $connection.exec "INSERT INTO logger (id, message) VALUES(#{counter}, '#{message}')"
-      sleep 0.0001
       puts message
       puts counter
       counter += 1
@@ -38,3 +37,4 @@ class DatabaseConnection
     $connection.exec("TRUNCATE TABLE logger CASCADE")
   end
 end
+
