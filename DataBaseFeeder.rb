@@ -1,4 +1,4 @@
-require_relative 'DatabaseConnection'
+require_relative 'DataBase'
 class Main
   dbhost = '192.168.1.5'
   dbuser = 'sysadmin'

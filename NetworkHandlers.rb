@@ -3,63 +3,50 @@ require 'net/scp'
 require 'net/sftp'
 class NetworkHandlers
 
-  # THIS IS THE NETWORKHANDLERS CONSTRUCTOR OR INITIALIZER METHOD
-  # PARAMETERS ARE
-  # HOST=> IT'S THE IP OF THE VIRTUAL MACHINE TO MONITOR
-  # USER=> IT'S THE VM USER TO CONNECT AS
-  # PASSWORD=> IT'S THE USER'S PASSWORD
-
-  # CONSTRUCTOR BEGINS
-
   def initialize(host, user, password)
     @host = host
     @user = user
     @password = password
   end
 
-  # CONSTRUCTOR ENDS
-
-  # DEF SCP_HOST BEGINS
-
-  # THIS METHOD IS SUPPOSED TO HANDLE THE DOWNLOAD OF THE POSTGRE_DUMP FILE IN THE REMOTE SERVER(VM)
-  def scp_host
+  def scp_host_for_backupdl
     Net::SCP.start(@host, @user, :password => @password) do |scp|
-      scp.download "/home/erick/postgres_dump.sql", "/home/ecobo95/PostgresDumps/"
+      scp.download('/home/erick/postgres_dump.sql', '/home/ecobo95/PostgresDumps/')
     end #DO ENDS
   end
 
-  # DEF ENDS
-
-  # DEF SSH_VM BEGINS
-
-  # THIS METHOD WORKS TO CHECK FOR REMOTE SERVER(VM) FOR DISK SPACE USING SSH.EXEC!
-  def ssh_vm
-    Net::SSH.start(@host, @user, :password => @password) do |ssh|
-      while true
-        disk_space = ssh.exec!("df -h / | grep -o '[0-9][0-9]%*'")
-        temp = disk_space.to_s
-        used_space = temp.gsub("%", "")
-        puts "Used disk space is: #{used_space}"
-        space = used_space.to_i
-        if space == 41
-          ssh.exec!('pg_dump postgres > postgres_dump.sql')
-          scp_host
-          sftp_to_vm
-        end # IF ENDS
-      end
-    end # DO ENDS
-  end
-
-  # DEF ENDS
-
-  # DEF SFTP_TO_VM STARTS
-
-  # THIS METHOD WORKS TO CHECK THE REMOTE DIRECTORY AND ERASE THE POSTGRES_DUMP FILE
-  def sftp_to_vm
+  def sftp_to_vm_rmbackup
     Net::SFTP.start(@host, @user, :password => @password) do |sftp|
-      sftp.remove("/home/erick/postgres_dump.sql")
-    end # DO ENDS
+      sftp.remove!('/home/erick/postgres_dump.sql')
+    end
   end
-  # DEF ENDS
 
-end #CLASS ENDS
+  def ssh_vm_for_space
+    need_space = nil
+    Net::SSH.start(@host, @user, :password => @password) do |ssh|
+      disk_space = ssh.exec!('df -h / | grep -o "[0-9][0-9]%*"')
+      temp = disk_space.to_s
+      used_space = temp.gsub("%", "")
+      puts "Used disk space is: #{used_space}"
+      space = used_space.to_i
+      if space == 50
+        need_space = true
+      end
+    end
+    need_space
+  end
+
+  def ssh_vm_crbackup
+    Net::SSH.start(@host, @user, :password => @password) do |ssh|
+      ssh.exec!('pg_dump postgres > /home/erick/pg_postgres_dump_exemplar.sql')
+    end
+  end
+
+  def ssh_for_clean
+    Net::SSH.start(@host, @user, :password => @password) do |ssh|
+      ssh.exec!('sudo apt-get clean')
+      ssh.exec!('sudo apt-get autoremove -y')
+      ssh.exec!('sudo apt-get autoclean')
+    end
+  end
+end
