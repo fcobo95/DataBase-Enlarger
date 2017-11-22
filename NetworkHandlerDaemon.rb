@@ -21,13 +21,13 @@ class Main
 
   while true
     check_space = handlers.ssh_vm_for_space
-
+    sleep(1)
     if check_space
       handlers.ssh_vm_crbackup
+      database.truncate_logger
       handlers.scp_host_for_backupdl
       handlers.sftp_to_vm_rmbackup
       handlers.ssh_for_clean
-      database.truncate_logger
     end
   end
 
