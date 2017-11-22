@@ -17,8 +17,11 @@ class Main
   user = 'erick'
   password = 'root'
 
+  # NETWORKHANDLERS OBJECT
   handlers = NetworkHandlers.new(host, user, password)
 
+  # THIS WILL ALLOW THE DAEMON TO MONITOR DISK SPACE IN REMOTE SERVER AND EXECUTE A BLOCK OF INSTRUCTIONS IN CASE
+  # THE DISK SPACE IS CLOSE TO THE CONDITION.
   while true
     check_space = handlers.ssh_vm_for_space
     sleep(1)

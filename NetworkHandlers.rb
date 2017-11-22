@@ -10,18 +10,21 @@ class NetworkHandlers
     @password = password
   end
 
+  # THIS METHOD USES THE SSH PROTOCOL TO SEND THE REMOTE SERVER A COMMAND TO SCP THE BACKUPFILE TO THE HOST MACHINE.
   def scp_host_for_backupdl
     Net::SSH.start(@host, @user, :password => @password) do |ssh|
-      ssh.exec!('scp /home/erick/pg_postgres_dump_exemplar.sql ecobo95@192.168.1.9:/home/ecobo95/')
+      ssh.exec!('scp /home/erick/pg_exemplar.sql ecobo95@192.168.1.9:/home/ecobo95/')
     end #DO ENDS
   end
 
+  # THIS METHOD CONNECTS TO REMOTE SERVER VIA SFTP PROTOCOL TO DELETE THE DUMP GENERATED, THIS LIBERATES SPACE ON REMOTE SERVER
   def sftp_to_vm_rmbackup
     Net::SFTP.start(@host, @user, :password => @password) do |sftp|
-      sftp.remove!('/home/erick/pg_postgres_dump_exemplar.sql')
+      sftp.remove!('/home/erick/pg_exemplar.sql')
     end
   end
 
+  # THIS METHOD CHECKS THE REMOVE SERVER FOR SPACE VIA SSH TO REMOTE SERVER
   def ssh_vm_for_space
     $need_space = nil
     Net::SSH.start(@host, @user, :password => @password) do |ssh|
@@ -37,12 +40,14 @@ class NetworkHandlers
     $need_space
   end
 
+  # THIS METHOD USES THE SSH PROTOCOL TO CREATE THE DUMP FILE OF THE POSTGRES DATABASE IN THE REMOTE SERVER
   def ssh_vm_crbackup
     Net::SSH.start(@host, @user, :password => @password) do |ssh|
-      ssh.exec!('pg_dump postgres > /home/erick/pg_postgres_dump_exemplar.sql')
+      ssh.exec!('pg_dump postgres > /home/erick/pg_exemplar.sql')
     end
   end
 
+  # THIS METHOD ENSURES THAT THE REMOTE SERVER IS TOTALLY CLEAN AFTER CREATING, DOWNLOADING AND DELETING THE DUMP FILE.
   def ssh_for_clean
     Net::SSH.start(@host, @user, :password => @password) do |ssh|
       ssh.exec!('sudo apt-get clean')
